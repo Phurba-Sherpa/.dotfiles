@@ -120,10 +120,12 @@ export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
 ##-----------------------------------------------------
+
+ bind '"\C-f": "tmux-sessionizer\n"'
+ export PATH="$HOME/bin:$PATH"
+
+##-----------------------------------------------------
 ## synth-shell-prompt.sh
 if [ -f /home/wow/.config/synth-shell/synth-shell-prompt.sh ] && [ -n "$( echo $- | grep i )" ]; then
 	source /home/wow/.config/synth-shell/synth-shell-prompt.sh
 fi
-
- bind '"\C-f": "tmux-sessionizer\n"'
- export PATH="$HOME/bin:$PATH"
