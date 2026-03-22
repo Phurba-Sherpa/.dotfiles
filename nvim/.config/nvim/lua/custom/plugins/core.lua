@@ -1,5 +1,4 @@
 vim.o.relativenumber = true
-vim.o.mouse = ''
 vim.o.termguicolors = true
 vim.o.list = false
 vim.o.tabstop = 4
@@ -58,7 +57,6 @@ vim.api.nvim_create_autocmd('User', {
         },
       }
     end
-
   end,
 })
 

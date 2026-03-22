@@ -42,9 +42,7 @@ return {
 
   {
     'tpope/vim-fugitive',
-    config = function()
-      vim.keymap.set('n', '<leader>gs', ':Git<CR>', { desc = 'Open git status' })
-    end,
+    config = function() vim.keymap.set('n', '<leader>gs', ':Git<CR>', { desc = 'Open git status' }) end,
   },
 
   { 'ThePrimeagen/vim-be-good' },
@@ -94,40 +92,76 @@ return {
     },
   },
   {
-    'nickjvandyke/opencode.nvim',
-    version = '*',
+    'mfussenegger/nvim-dap',
     dependencies = {
-      {
-        'folke/snacks.nvim',
-        optional = true,
-        opts = {
-          input = {},
-          picker = {
-            actions = {
-              opencode_send = function(...) return require('opencode').snacks_picker_send(...) end,
-            },
-            win = {
-              input = {
-                keys = {
-                  ['<a-a>'] = { 'opencode_send', mode = { 'n', 'i' } },
-                },
-              },
-            },
-          },
-        },
-      },
+      'mfussenegger/nvim-dap-python',
+      'rcarriga/nvim-dap-ui',
+      'nvim-neotest/nvim-nio',
     },
     config = function()
-      vim.g.opencode_opts = {}
-      vim.o.autoread = true
-      local opencode = require 'opencode'
-      vim.keymap.set({ 'n', 'x' }, '<leader>oa', function() opencode.ask('@this: ', { submit = true }) end, { desc = 'Opencode ask' })
-      vim.keymap.set({ 'n', 'x' }, '<leader>ox', function() opencode.select() end, { desc = 'Opencode select action' })
-      vim.keymap.set({ 'n', 't' }, '<leader>ot', function() opencode.toggle() end, { desc = 'Opencode toggle' })
-      vim.keymap.set({ 'n', 'x' }, '<leader>or', function() return opencode.operator '@this ' end, { desc = 'Opencode add range', expr = true })
-      vim.keymap.set('n', '<leader>ol', function() return opencode.operator '@this ' .. '_' end, { desc = 'Opencode add line', expr = true })
-      vim.keymap.set('n', '<leader>ou', function() opencode.command 'session.half.page.up' end, { desc = 'Opencode scroll up' })
-      vim.keymap.set('n', '<leader>od', function() opencode.command 'session.half.page.down' end, { desc = 'Opencode scroll down' })
+      local dap = require 'dap'
+      local dapui = require 'dapui'
+
+      dapui.setup()
+
+      -- Python debugger setup via uv
+      require('dap-python').setup 'uv'
+      require('dap-python').test_runner = 'pytest'
+
+      -- Auto-open only while you are setting things up
+      dap.listeners.before.attach.dapui_config = function() dapui.open() end
+      dap.listeners.before.launch.dapui_config = function() dapui.open() end
+
+      -- Breakpoint sign
+      vim.fn.sign_define('DapBreakpoint', {
+        text = '●',
+        texthl = 'DiagnosticError',
+        linehl = '',
+        numhl = '',
+      })
+
+      -- Add your own project-specific config
+      table.insert(dap.configurations.python, {
+        type = 'python',
+        request = 'launch',
+        name = 'FastAPI: uvicorn',
+        module = 'uvicorn',
+        args = {
+          'app.main:app', -- change this per project
+          '--host',
+          '127.0.0.1',
+          '--port',
+          '8000',
+        },
+        console = 'integratedTerminal',
+        cwd = '${workspaceFolder}',
+        justMyCode = true,
+        -- logToFile = true, -- enable only while troubleshooting
+      })
+
+      -- Optional plain Python sanity config
+      table.insert(dap.configurations.python, {
+        type = 'python',
+        request = 'launch',
+        name = 'Python: current file',
+        program = '${file}',
+        console = 'integratedTerminal',
+        cwd = '${workspaceFolder}',
+        justMyCode = true,
+      })
+
+      -- Keymaps
+      vim.keymap.set('n', '<F5>', function() dap.continue() end)
+      vim.keymap.set('n', '<F10>', function() dap.step_over() end)
+      vim.keymap.set('n', '<F11>', function() dap.step_into() end)
+      vim.keymap.set('n', '<F12>', function() dap.step_out() end)
+      vim.keymap.set('n', '<leader>b', function() dap.toggle_breakpoint() end)
+      vim.keymap.set('n', '<leader>dB', function() dap.set_breakpoint(vim.fn.input 'Breakpoint condition: ') end)
+      vim.keymap.set('n', '<leader>dr', function() dap.repl.open() end)
+      vim.keymap.set('n', '<leader>du', function() dapui.toggle() end)
+      vim.keymap.set('n', '<leader>dc', function() dapui.close() end)
+      vim.keymap.set('n', '<leader>dq', function() dap.terminate() end)
+      vim.keymap.set('n', '<leader>dpr', function() require('dap-python').test_method() end)
     end,
   },
 }
