@@ -4,6 +4,7 @@ return {
   { import = 'kickstart.plugins.debug' },
   { import = 'kickstart.plugins.indent_line' },
   { import = 'kickstart.plugins.autopairs' },
+  { import = 'kickstart.plugins.presentation' },
 
   {
     'mfussenegger/nvim-lint',
