@@ -48,11 +48,6 @@ return {
     'nvim-telescope/telescope.nvim',
     keys = {
       {
-        '<leader>pf',
-        function() require('telescope.builtin').find_files() end,
-        desc = 'Find [P]roject [F]iles',
-      },
-      {
         '<leader>pg',
         function()
           local pickers = require 'telescope.pickers'
@@ -137,15 +132,11 @@ return {
         'json',
       }
 
-      vim.schedule(function()
-        require('nvim-treesitter').install(filetypes)
-      end)
+      vim.schedule(function() require('nvim-treesitter').install(filetypes) end)
 
       vim.api.nvim_create_autocmd('FileType', {
         pattern = filetypes,
-        callback = function()
-          vim.treesitter.start()
-        end,
+        callback = function() vim.treesitter.start() end,
       })
     end,
   },
