@@ -1,0 +1,40 @@
+
+# Use vi keybindings
+set -o vi
+
+alias cat="batcat"
+# Git aliases
+alias gst='git status'
+alias gaa='git add -A'
+alias gc='git commit'
+alias gcm='git checkout main'
+alias gd='git diff'
+alias gdc='git diff --cached'
+alias co='git checkout'
+alias up='git push'
+alias upf='git push --force'
+alias pu='git pull'
+alias pur='git pull --rebase'
+alias fe='git fetch'
+alias re='git rebase'
+alias lr='git l -30'
+alias cdr='cd "$(git rev-parse --show-toplevel)"'
+alias hs='git rev-parse --short HEAD'
+alias hm='git log --format=%B -n 1 HEAD'
+
+# Fuzzy checkout
+fo() {
+  git branch --no-color --sort=-committerdate --format='%(refname:short)' \
+    | fzf --header 'git checkout' \
+    | xargs git checkout
+}
+
+# Checkout your PR
+po() {
+  gh pr list --author "@me" \
+    | fzf --header 'checkout PR' \
+    | awk '{print $(NF-5)}' \
+    | xargs git checkout
+}
+# add this end of line in .bashrc
+# [ -f ~/.bashrc.local ] && source ~/.bashrc.local
