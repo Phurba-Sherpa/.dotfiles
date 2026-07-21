@@ -111,3 +111,4 @@ source <(fzf --zsh)
 
 # opencode
 export PATH=/Users/phurba/.opencode/bin:$PATH
+export PATH="/opt/homebrew/opt/postgresql@18/bin:$PATH"
