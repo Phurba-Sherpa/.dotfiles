@@ -30,14 +30,20 @@ LABELS=({1..9})
 LEFT_SPACE_ITEMS=()
 INDEX=0
 
+NON_EMPTY=$(aerospace list-workspaces --monitor all --empty no)
+
 for sid in $(aerospace list-workspaces --all); do
-  label="${LABELS[$INDEX]:-}"
+  label="${LABELS[$INDEX]:-}"
   item="space.$sid"
   LEFT_SPACE_ITEMS+=("$item")
+
+  if echo "$NON_EMPTY" | grep -qx "$sid"; then INIT_DRAW=on; else INIT_DRAW=off; fi
 
   sketchybar --add item "$item" left \
     --subscribe "$item" aerospace_workspace_change \
     --set "$item" \
+      drawing="$INIT_DRAW" \
+      update_freq=2 \
       background.color=0xff000000 \
       background.corner_radius=5 \
       background.height=20 \
