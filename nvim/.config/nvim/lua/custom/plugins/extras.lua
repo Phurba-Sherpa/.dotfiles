@@ -98,10 +98,51 @@ return {
       'mfussenegger/nvim-dap-python',
       'rcarriga/nvim-dap-ui',
       'nvim-neotest/nvim-nio',
+      'jay-babu/mason-nvim-dap.nvim',
     },
     config = function()
       local dap = require 'dap'
       local dapui = require 'dapui'
+      -- Mason: manage debug adapter binaries
+      require('mason-nvim-dap').setup {
+        ensure_installed = { 'js-debug-adapter' },
+        automatic_installation = true,
+      }
+
+      -- js-debug-adapter registers itself as "js" in mason-nvim-dap, but
+      -- nvim-dap configurations expect the adapter type "pwa-node" — so we
+      -- register it manually, pointing at the Mason-installed binary.
+      dap.adapters['pwa-node'] = {
+        type = 'server',
+        host = '::1',
+        port = '${port}',
+        executable = {
+          command = 'node',
+          args = {
+            vim.fn.stdpath 'data' .. '/mason/packages/js-debug-adapter/js-debug/src/dapDebugServer.js',
+            '${port}',
+          },
+        },
+      }
+
+      -- NestJS: attach to the process started by `pnpm run start:debug`
+      dap.configurations.typescript = {
+        {
+          type = 'pwa-node',
+          request = 'attach',
+          name = 'NestJS: Attach (apps/server)',
+          address = 'localhost',
+          port = 9229,
+          restart = true,
+          sourceMaps = true,
+          cwd = '${workspaceFolder}/apps/server',
+          skipFiles = { '<node_internals>/**', '**/node_modules/**' },
+          resolveSourceMapLocations = {
+            '${workspaceFolder}/apps/server/**',
+            '!**/node_modules/**',
+          },
+        },
+      }
 
       dapui.setup()
 
